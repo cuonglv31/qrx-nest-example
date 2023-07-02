@@ -1,4 +1,4 @@
-import {Controller, Get, Query, Render, Res} from '@nestjs/common';
+import { Controller, Get, Query, Render, Res } from '@nestjs/common';
 
 type IQRCode = {
   id: string;
