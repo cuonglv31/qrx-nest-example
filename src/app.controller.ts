@@ -1,4 +1,6 @@
 import { Controller, Get, Query, Render, Res } from '@nestjs/common';
+import * as path from "path";
+import * as fs from "fs";
 
 type IQRCode = {
   id: string;
@@ -13,36 +15,29 @@ export class AppController {
     if (!qrId) {
       return res.redirect('/');
     }
+    try {
+      const dataPath = path.join(process.cwd(), 'src', 'data', 'index.json');
+      const data: string = fs.readFileSync(dataPath, 'utf-8');
+      const qrcodeList: Array<IQRCode> = JSON.parse(data)?.qrcode || [];
 
-    const qrcodeList: Array<IQRCode> = [
-      {
-        id: 'ITLAs0i4zdT7bpaXudW9',
-        url: 'https://donghetop.vn',
-      },
-      {
-        id: 'VO1iuLOCIjRHYvnHoD31',
-        url: 'http://emax.medent.vn',
-      },
-      {
-        id: 'KNUQE3cjOG5EtoNyAEhm',
-        url: 'https://bostonpharma.com.vn/vn/kim-tien-thao.html',
-      },
-    ];
+      const qrCode = qrcodeList.find((q) => q.id === qrId);
+      if (!qrCode) {
+        return res.redirect('/');
+      }
 
-    const qrCode = qrcodeList.find((q) => q.id === qrId);
-    if (!qrCode) {
+      const response = await fetch(qrCode.url, {
+        method: 'HEAD',
+      });
+
+      if (!response.ok) {
+        return res.redirect('/');
+      }
+
+      return res.redirect(qrCode.url);
+    } catch (error) {
+      console.log('ERROR', error);
       return res.redirect('/');
     }
-
-    const response = await fetch(qrCode.url, {
-      method: 'HEAD',
-    });
-
-    if (!response.ok) {
-      return res.redirect('/');
-    }
-
-    return res.redirect(qrCode.url);
   }
 
   @Get('/')
