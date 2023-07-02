@@ -1,6 +1,7 @@
 import { Controller, Get, Query, Render, Res } from '@nestjs/common';
 import * as path from "path";
 import * as fs from "fs";
+import * as https from "https";
 
 type IQRCode = {
   id: string;
@@ -25,13 +26,13 @@ export class AppController {
         return res.redirect('/');
       }
 
-      const response = await fetch(qrCode.url, {
-        method: 'HEAD',
-      });
-
-      if (!response.ok) {
-        return res.redirect('/');
-      }
+      // const response = await fetch(qrCode.url, {
+      //   method: 'HEAD',
+      // });
+      //
+      // if (!response.ok) {
+      //   return res.redirect('/');
+      // }
 
       return res.redirect(qrCode.url);
     } catch (error) {
