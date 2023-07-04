@@ -1,7 +1,8 @@
-import { Controller, Get, Query, Render, Res } from '@nestjs/common';
+import { Controller, Get, Query, Render, Res, Req } from '@nestjs/common';
 import * as path from "path";
 import * as fs from "fs";
 import * as https from "https";
+import {Request} from 'express';
 
 type IQRCode = {
   id: string;
@@ -11,10 +12,10 @@ type IQRCode = {
 @Controller()
 export class AppController {
   @Get('v/s')
-  async getRedirectQRCode(@Res() res, @Query() query: { id: string }) {
+  async getRedirectQRCode(@Req() req: Request, @Res() res, @Query() query: { id: string }) {
     const qrId = query?.id?.trim() || '';
     if (!qrId) {
-      return res.redirect('/');
+      return res.redirect(req.originalUrl);
     }
     try {
       const dataPath = path.join(process.cwd(), 'src', 'data', 'index.json');
@@ -23,7 +24,7 @@ export class AppController {
 
       const qrCode = qrcodeList.find((q) => q.id === qrId);
       if (!qrCode) {
-        return res.redirect('/');
+        return res.redirect(req.originalUrl);
       }
 
       // const response = await fetch(qrCode.url, {
@@ -31,13 +32,13 @@ export class AppController {
       // });
       //
       // if (!response.ok) {
-      //   return res.redirect('/');
+      //   return res.redirect(req.originalUrl);
       // }
 
       return res.redirect(qrCode.url);
     } catch (error) {
       console.log('ERROR', error);
-      return res.redirect('/');
+      return res.redirect(req.originalUrl);
     }
   }
 
